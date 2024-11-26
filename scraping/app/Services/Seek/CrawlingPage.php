@@ -31,17 +31,17 @@ class CrawlingPage implements ShouldQueue
 
         @$dom->loadHTML($html);
 
-        $xpath = new DOMXPath($dom);
+        $xpath      = new DOMXPath($dom);
         $advertiser = $xpath->query('//span[@data-automation="advertiser-name"]')->item(0)->nodeValue ?? null;
-        $detail = $xpath->query('//span[@data-automation="job-detail-classifications"]')->item(0)->nodeValue ?? null;
+        $detail     = $xpath->query('//span[@data-automation="job-detail-classifications"]')->item(0)->nodeValue ?? null;
 
         $new_jobs = [
-            'title'       => $this->data['title'],
-            'url'         => $url,
-            'details'      => $detail ?? 'N/A',
-            'business'    => $advertiser ?? 'N/A',
+            'title'    => $this->data['title'],
+            'url'      => $url,
+            'details'  => $detail ?? 'N/A',
+            'business' => $advertiser ?? 'N/A',
         ];
 
-        dispatch(new OpportunityJob($new_jobs))->onQueue('processed_opportunities');
+        dispatch(new OpportunityJob($new_jobs))->onQueue('queue_new_opportunity');
     }
 }

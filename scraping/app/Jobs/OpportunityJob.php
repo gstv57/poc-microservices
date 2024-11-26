@@ -21,6 +21,6 @@ class OpportunityJob implements ShouldQueue
      */
     public function handle(): void
     {
-        
+
     }
 }

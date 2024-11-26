@@ -26,6 +26,6 @@ class ScrapingTest extends Command
      */
     public function handle(): void
     {
-        dispatch(new GetJobsOnPage('fullstack-jobs'))->onQueue('scraping_jobs');
+        dispatch(new GetJobsOnPage('fullstack-jobs'))->onQueue('scraping_jobs_page');
     }
 }

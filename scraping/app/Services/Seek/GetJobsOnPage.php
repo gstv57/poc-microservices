@@ -84,11 +84,11 @@ class GetJobsOnPage implements ShouldQueue
     {
         $batchSize = 10;
 
-        $chunks    = array_chunk($payload, $batchSize);
+        $chunks = array_chunk($payload, $batchSize);
 
         foreach ($chunks as $chunk) {
             foreach ($chunk as $job) {
-                CrawlingPage::dispatch($job)->onQueue('scraping_jobs');
+                CrawlingPage::dispatch($job)->onQueue('scraping_jobs_page');
             }
         }
     }
@@ -113,6 +113,7 @@ class GetJobsOnPage implements ShouldQueue
 
         if ($elements->length > 0) {
             $text = $elements->item(0)->nodeValue;
+
             return $text !== "No matching search results";
         }
 

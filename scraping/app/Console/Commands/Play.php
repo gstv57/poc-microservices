@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Jobs\OpportunityJob;
+use Illuminate\Console\Command;
 
 class Play extends Command
 {
     // Definição do comando
     protected $signature = 'play';
+
     protected $description = 'Command description';
     public function handle(): void
     {
