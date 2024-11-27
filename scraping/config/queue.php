@@ -74,7 +74,7 @@ return [
 
         'rabbitmq' => [
             'driver' => 'rabbitmq',
-            'queue'  => 'queue_new_opportunity',
+            'queue'  => 'scraping',
             'hosts'  => [
                 [
                     'host'     => env('RABBITMQ_HOST', '127.0.0.1'),

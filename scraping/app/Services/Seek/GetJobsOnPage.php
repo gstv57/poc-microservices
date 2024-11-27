@@ -88,7 +88,7 @@ class GetJobsOnPage implements ShouldQueue
 
         foreach ($chunks as $chunk) {
             foreach ($chunk as $job) {
-                CrawlingPage::dispatch($job)->onQueue('scraping_jobs_page');
+                CrawlingPage::dispatch($job)->onQueue('scraping');
             }
         }
     }

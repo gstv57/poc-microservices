@@ -71,9 +71,11 @@ return [
             'block_for'    => null,
             'after_commit' => false,
         ],
+
         'rabbitmq' => [
             'driver' => 'rabbitmq',
-            'queue'  => 'queue_new_opportunity',
+            'queue'  => 'opportunities',
+            'after_commit' => true,
             'hosts'  => [
                 [
                     'host'     => env('RABBITMQ_HOST', '127.0.0.1'),

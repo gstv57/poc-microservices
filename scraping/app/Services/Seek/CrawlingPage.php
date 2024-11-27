@@ -42,6 +42,6 @@ class CrawlingPage implements ShouldQueue
             'business' => $advertiser ?? 'N/A',
         ];
 
-        dispatch(new OpportunityJob($new_jobs))->onQueue('queue_new_opportunity');
+        dispatch(new OpportunityJob($new_jobs))->onQueue('opportunities');
     }
 }
