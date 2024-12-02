@@ -5,6 +5,7 @@ namespace App\Services\Seek;
 use App\Jobs\OpportunityJob;
 use DOMDocument;
 use DOMXPath;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -14,18 +15,18 @@ class CrawlingPage implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
-    use SerializesModels;
     use Queueable;
+    use SerializesModels;
+    use Batchable;
 
-    public string $url = "https://www.seek.com.au";
+    public string $url = 'https://www.seek.com.au';
     public function __construct(public array $data)
     {
+        $this->url = $this->url . $this->data['url'];
     }
     public function handle(): void
     {
-        $url = $this->url . $this->data['url'];
-
-        $html = file_get_contents($url);
+        $html = file_get_contents($this->url);
 
         $dom = new DOMDocument();
 
@@ -37,9 +38,10 @@ class CrawlingPage implements ShouldQueue
 
         $new_jobs = [
             'title'    => $this->data['title'],
-            'url'      => $url,
+            'url'      => $this->url,
             'details'  => $detail ?? 'N/A',
             'business' => $advertiser ?? 'N/A',
+            'hash'     => $this->data['hash'],
         ];
 
         dispatch(new OpportunityJob($new_jobs))->onQueue('opportunities');

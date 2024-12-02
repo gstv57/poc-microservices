@@ -73,10 +73,10 @@ return [
         ],
 
         'rabbitmq' => [
-            'driver' => 'rabbitmq',
-            'queue'  => 'opportunities',
+            'driver'       => 'rabbitmq',
+            'queue'        => env('RABBITMQ_QUEUE', 'default'),
             'after_commit' => true,
-            'hosts'  => [
+            'hosts'        => [
                 [
                     'host'     => env('RABBITMQ_HOST', '127.0.0.1'),
                     'port'     => env('RABBITMQ_PORT', 5672),
@@ -87,7 +87,6 @@ return [
             ],
         ],
     ],
-
     /*
     |--------------------------------------------------------------------------
     | Job Batching

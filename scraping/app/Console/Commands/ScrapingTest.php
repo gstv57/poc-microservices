@@ -21,11 +21,8 @@ class ScrapingTest extends Command
      */
     protected $description = 'Command description';
 
-    /**
-     * Execute the console command.
-     */
     public function handle(): void
     {
-        dispatch(new GetJobsOnPage('software-enginner-jobs'))->onQueue('scraping');
+        dispatch(new GetJobsOnPage('laravel-jobs'))->onQueue('scraping');
     }
 }

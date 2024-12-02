@@ -2,10 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Services\Seek\GetJobsOnPage;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class OpportunityJob implements ShouldQueue
+class RequestScrapingJob implements ShouldQueue
 {
     use Queueable;
 
@@ -14,12 +15,12 @@ class OpportunityJob implements ShouldQueue
      */
     public function __construct(public array $data)
     {
-        //
     }
     /**
      * Execute the job.
      */
     public function handle(): void
     {
+        dispatch(new GetJobsOnPage($this->data['query'] . '-jobs', $this->data['hash']));
     }
 }

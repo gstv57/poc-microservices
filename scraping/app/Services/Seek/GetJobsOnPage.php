@@ -2,19 +2,25 @@
 
 namespace App\Services\Seek;
 
+use App\Jobs\StatusRequestScrapingUpdated;
 use DOMDocument;
 use DOMXPath;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\{Bus};
 
 class GetJobsOnPage implements ShouldQueue
 {
     use Queueable;
-    public function __construct(
-        public string $keyword
-    ) {
-    }
 
+    protected array $queueList;
+
+    public function __construct(
+        public string $keyword,
+        public string $hash,
+    ) {
+        $this->queueList = [];
+    }
     public function handle(): void
     {
         $this->scrapeJobPages();
@@ -38,11 +44,20 @@ class GetJobsOnPage implements ShouldQueue
             $currentPageJobs = $this->extractJobsFromElements($elements);
             $payload         = $this->processJobs($currentPageJobs);
 
-            $this->dispatchJobs($payload);
+            $this->makeQueue($payload);
 
             if ($this->hasNextPage($html)) {
                 $this->scrapeJobPages($page + 1);
             }
+        } else {
+            $this->dispatchJobs($this->queueList);
+        }
+    }
+
+    protected function makeQueue($payload): void
+    {
+        foreach ($payload as $job) {
+            $this->queueList[] = $job;
         }
     }
 
@@ -70,8 +85,8 @@ class GetJobsOnPage implements ShouldQueue
                 'job_id' => $this->getJobId($value),
                 'title'  => $value['title'],
                 'url'    => $value['url'],
+                'hash'   => $this->hash ?? null,
             ];
-
         }
 
         return array_values(array_intersect_key(
@@ -82,15 +97,23 @@ class GetJobsOnPage implements ShouldQueue
 
     protected function dispatchJobs(array $payload): void
     {
-        $batchSize = 10;
+        $jobs = [];
 
-        $chunks = array_chunk($payload, $batchSize);
-
-        foreach ($chunks as $chunk) {
-            foreach ($chunk as $job) {
-                CrawlingPage::dispatch($job)->onQueue('scraping');
-            }
+        foreach ($payload as $job) {
+            $jobs[] = new CrawlingPage($job);
         }
+
+        $hash = $this->hash;
+
+        Bus::batch($jobs)
+            ->onQueue('scraping')
+            ->then(function () use ($hash) {
+                dispatch(new StatusRequestScrapingUpdated([
+                    'hash' => $hash,
+                    'status' => 'done',
+                ]))->onQueue('opportunities');
+            })
+            ->dispatch();
     }
 
     protected function getJobId($job): int
@@ -114,7 +137,7 @@ class GetJobsOnPage implements ShouldQueue
         if ($elements->length > 0) {
             $text = $elements->item(0)->nodeValue;
 
-            return $text !== "No matching search results";
+            return $text !== 'No matching search results';
         }
 
         return true;

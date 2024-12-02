@@ -2,10 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Models\RequestScraping;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class OpportunityJob implements ShouldQueue
+class StatusRequestScrapingUpdated implements ShouldQueue
 {
     use Queueable;
 
@@ -14,12 +15,10 @@ class OpportunityJob implements ShouldQueue
      */
     public function __construct(public array $data)
     {
-        //
     }
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
+        RequestScraping::where('hash', $this->data['hash'])
+            ->update(['status' => $this->data['status']]);
     }
 }
